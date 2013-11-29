@@ -30,7 +30,7 @@ class TestPhp(unittest.TestCase, PhpTestMixin):
         
     def test_should_say_unknown_command(self):
         self.app.main(['unknown'])
-        self.assertIn("Command 'unknown' is unknown.", self.saved_contents_)
+        self.assertIn("Command is unknown.", self.saved_contents_)
         
     def test_should_say_not_found_when_retrieve_nonexisting_record(self):
         self.app.main(['retrieve', 'NONEXISTING_RECORD'])
@@ -49,6 +49,14 @@ class TestPhp(unittest.TestCase, PhpTestMixin):
         self.clearSavedOutput()
         self.app.main(['retrieve', 'NEW_RECORD'])
         self.assertIn('NEW_RECORD', self.saved_contents_)
+
+    def test_format_should_erase_all_record(self):
+        self.app.main(['create', 'NEW_RECORD'])
+        self.app.main(['format'])
+        self.clearSavedOutput()
+        self.app.main(['retrieve', 'NEW_RECORD'])
+        self.assertIn('Record Not Found.', self.saved_contents_)
+
 
 class TestPersistant(unittest.TestCase, PhpTestMixin):
 

@@ -3,7 +3,7 @@ from pyphp import phpApp, Persist
 
 class FakePersist(object):
     def save(self, content): pass
-    def load(self): return []
+    def load(self): return {'EXISTING_RECORD':{}}
 
 class PhpTestMixin(object):
     
@@ -73,10 +73,10 @@ class TestAttributes(unittest.TestCase, PhpTestMixin):
         self.initTestMixin()
         self.app = phpApp(FakePersist())
     
-    def xtest_create_and_get_new_attribute(self):
+    def test_create_and_get_new_attribute(self):
         self.app.main(['create', 'NEW_RECORD'])
         self.clearSavedOutput()
-        self.app.main(['attribute', 'first name', 'john'])
+        self.app.main(['attribute', 'NEW_RECORD', 'first name', 'john'])
         self.app.main(['retrieve', 'NEW_RECORD'])
         self.assertIn('NEW_RECORD', self.saved_contents_)
         self.assertIn('[first name] john', self.saved_contents_)

@@ -4,34 +4,39 @@ class PhpDirectory(object):
 
     def __init__(self, content):
         self.records = content
-        self.records.append('EXISTING_RECORD')
 
     def retrieve_record(self, record_name):
-        if record_name in self.records:
-            return record_name
+        return self.records.get(record_name, None)
 
     def create(self, record_name):
-        self.records.append(record_name)
+        self.records[record_name] = {}
+        
+    def attribute(self, record_name, attribute_name, attribute_value):
+        self.records[record_name][attribute_name] = attribute_value
 
 class phpApp(object):
     
     def __init__(self, persist):
         self.persist = persist
         self.directory = PhpDirectory(self.persist.load())
-        self.records = self.persist.load()
-        self.records.append('EXISTING_RECORD')
         
     def retrieve_record(self, record_name):
-        if self.directory.retrieve_record(record_name):
+        record = self.directory.retrieve_record(record_name)
+        if record is not None:
             self.write_line(record_name)
+            for k, v in record.items():
+                self.write_line('[%s] %s' % (k, v))
         else:
             self.write_line("Record Not Found.")
 
     def create(self, record_name):
         self.directory.create(record_name)
-        self.persist.save(self.directory.records)
         self.write_line("Successful.")
 
+    def attribute(self, record_name, attribute_name, attribute_value):
+        self.directory.attribute(record_name, attribute_name, attribute_value)
+        self.write_line("Successful.")
+    
     def main(self, argv):
         if len(argv) == 0:
             self.write_line('Hello from PHP!')
@@ -39,15 +44,19 @@ class phpApp(object):
         
         command = argv[0]
         if command == 'create':
-            record_name = argv[1]
-            self.create(record_name)
+            self.create(argv[1])
         
         elif command == 'retrieve':
-            record_name = argv[1]
-            self.retrieve_record(record_name)
+            self.retrieve_record(argv[1])
+         
+        elif command == 'attribute':
+            self.attribute(argv[1], argv[2], argv[3])
             
         else:
             self.write_line("Command '%s' is unknown." % command)
+    
+        self.persist.save(self.directory.records)
+
     def write_line(self, content):
         print content
 
@@ -64,7 +73,7 @@ class Persist(object):
             with open(self.FILE_NAME, 'r') as file:
                 return pickle.load(file)
         except IOError:
-            return []
+            return {}
         
 def main():
     import sys

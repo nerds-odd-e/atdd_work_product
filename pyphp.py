@@ -1,30 +1,49 @@
 import pickle
 
+class PhpDirectory(object):
+
+    def __init__(self, content):
+        self.records = content
+        self.records.append('EXISTING_RECORD')
+
+    def retrieve_record(self, record_name):
+        if record_name in self.records:
+            return record_name
+
+    def create(self, record_name):
+        self.records.append(record_name)
+
 class phpApp(object):
     
     def __init__(self, persist):
         self.persist = persist
+        self.directory = PhpDirectory(self.persist.load())
         self.records = self.persist.load()
         self.records.append('EXISTING_RECORD')
         
     def retrieve_record(self, record_name):
-        if record_name in self.records:
+        if self.directory.retrieve_record(record_name):
             self.write_line(record_name)
         else:
             self.write_line("Record Not Found.")
 
     def create(self, record_name):
-        self.records.append(record_name)
-        self.persist.save(self.records)
+        self.directory.create(record_name)
+        self.persist.save(self.directory.records)
         self.write_line("Successful.")
 
     def main(self, argv):
+        if len(argv) == 0:
+            self.write_line('Hello from PHP!')
+            return
+        
         command = argv[0]
-        record_name = argv[1]
         if command == 'create':
+            record_name = argv[1]
             self.create(record_name)
         
         elif command == 'retrieve':
+            record_name = argv[1]
             self.retrieve_record(record_name)
             
         else:
@@ -47,6 +66,9 @@ class Persist(object):
         except IOError:
             return []
         
-if __name__ == '__main__':
+def main():
     import sys
     phpApp(Persist()).main(sys.argv[1:])
+
+if __name__ == '__main__':
+    main()

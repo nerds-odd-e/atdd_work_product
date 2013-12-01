@@ -1,0 +1,38 @@
+*** Settings ***
+Library   Telnet
+
+*** Variables ***
+${Server}   localhost
+${Login User Name}   Joseph Yao
+${Login Password}   123456
+
+*** Test Cases ***
+创建不存在的人
+	When create person with   Joseph   Coach
+	Then can retrieve record with title   Joseph   Coach
+
+# 创建存在的人，但Title不同
+
+Test Teardown   Close Connection
+
+*** Keywords ***
+create person with
+	[Arguments]   ${name}   ${title}
+	open connection and login
+	Write   ./pyphp create ${name}
+	Read Until Success
+	Write   ./pyphp attribute ${name} title ${title}
+	Read Until Success
+
+can retrieve record with title
+	[Arguments]   ${name}   ${title}
+	Write   ./pyphp retrieve ${name}
+	Read Until   ${name}
+	Read Until   [title] ${title}
+
+open connection and login
+	Open Connection   ${Server}
+	Login   ${Login User Name}   ${Login Password}   password_prompt=Password:
+
+Read Until Success
+	Read Until   Successful.

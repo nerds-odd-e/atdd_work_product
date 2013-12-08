@@ -35,6 +35,7 @@ class phpApp(object):
     def create(self, record_name):
         if self.directory.retrieve(record_name) is not None:
             self.write_line("Duplicate Record and Failed to create.")
+            return
         
         self.directory.create(record_name)
         self.write_line("Successful.")

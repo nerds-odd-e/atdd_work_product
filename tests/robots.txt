@@ -1,5 +1,7 @@
 *** Settings ***
 Library   Telnet
+Test Setup   open connection and login
+Test Teardown   close connection and erase all data
 
 *** Variables ***
 ${Server}   localhost
@@ -7,8 +9,6 @@ ${Login User Name}   Joseph Yao
 ${Login Password}   123456
 
 *** Test Cases ***
-Test Setup   open connection and login
-
 创建不存在的人
 	When create person with   Joseph   Coach
 	Then can retrieve record with title   Joseph   Coach
@@ -17,8 +17,6 @@ Test Setup   open connection and login
 	Given an existing person with title   Joseph   Coach
 	When create duplicate person with   Joseph
 	Then get an error message
-
-Test Teardown   Close Connection
 
 *** Keywords ***
 an existing person with title
@@ -39,7 +37,7 @@ create person with
 
 create duplicate person with
 	[Arguments]   ${name}
-	Write   ./pyphp create ${name}	
+	Write   ./pyphp create ${name}
 
 can retrieve record with title
 	[Arguments]   ${name}   ${title}
@@ -53,6 +51,11 @@ get an error message
 open connection and login
 	Open Connection   ${Server}
 	Login   ${Login User Name}   ${Login Password}   password_prompt=Password:
+
+close connection and erase all data
+	Write   ./pyphp format
+	Read Until   All Data Erased.
+	Close Connection
 
 Read Until Success
 	Read Until   Successful.

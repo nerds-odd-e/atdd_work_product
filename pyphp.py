@@ -33,6 +33,10 @@ class phpApp(object):
             self.write_line("Record Not Found.")
 
     def create(self, record_name):
+        if len(record_name) > 20:
+            self.write_line("Person name can't be longer than 20.")
+            return
+
         if self.directory.retrieve(record_name) is not None:
             self.write_line("Duplicate Record and Failed to create.")
             return

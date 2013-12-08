@@ -18,6 +18,10 @@ ${Login Password}   123456
 	When create duplicate person with   Joseph
 	Then get an error message
 
+无法创建名字超过20个字符的人
+	When create person who name is longer than 20
+	Then person can't be created
+
 *** Keywords ***
 an existing person with title
 	[Arguments]   ${name}   ${title}
@@ -47,6 +51,12 @@ can retrieve record with title
 
 get an error message
 	Read Until   Duplicate Record and Failed to create.
+
+create person who name is longer than 20
+	Write   ./pyphp create name_longer_than_20__
+
+person can't be created
+	Read Until   Person name can't be longer than 20.
 
 open connection and login
 	Open Connection   ${Server}
